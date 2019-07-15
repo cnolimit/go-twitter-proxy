@@ -12,6 +12,26 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func main() {
+	const port = "3000"
+	const env = "development"
+	const verision = "1.0.0"
+
+	router := mux.NewRouter()
+	router.HandleFunc("/", handler)
+	router.HandleFunc("/tweets/{username}", handleTweets)
+	router.HandleFunc("/tweets/{username}/top-monthly", handleTopTweets)
+	http.Handle("/", router)
+
+	log.Printf(`🚨  Server started at: localhost:%s`, port)
+	log.Printf(`🛰  API: localhost:%s`, port)
+	log.Printf(`🍃  Enviroment: %s`, env)
+	log.Printf(`🏷️  Version: %s`, verision)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
+}
+
+const apiHome = "<b>Welcome to the API version: 1.0.0 the available endpoints are:</b><br><br><ol><li>/</li><li>/tweets - Params: [username]</li><li>/tweets/top-monthly - Params: [username]</li></ol>"
+
 /*
 * Function Name: twitterAPI
 * Description: Initialises the HTTP Client with keys and secrets
@@ -29,42 +49,29 @@ func twitterAPI() *twitter.Client {
 	config := oauth1.NewConfig(consumerKey, consumerSecret)
 	token := oauth1.NewToken(accessToken, accessSecret)
 	httpClient := config.Client(oauth1.NoContext, token)
-
-	// Twitter client
-	client := twitter.NewClient(httpClient)
-	return client
+	return twitter.NewClient(httpClient)
 }
 
-// API front page response
-const apiHome = "<b>Welcome to the API version: 1.0.0 the available endpoints are:</b><br><br><ol><li>/</li><li>/tweets - Params: [username]</li><li>/tweets/top-monthly - Params: [username]</li></ol>"
-
-func main() {
-	// Environment Variables
-	const port = "3000"
-	const env = "development"
-	const verision = "1.0.0"
-
-	// Endpoints
-	router := mux.NewRouter()
-	router.HandleFunc("/", handler)
-	router.HandleFunc("/tweets/{username}", handleTweets)
-	router.HandleFunc("/tweets/{username}/top-monthly", handleTopTweets)
-
-	http.Handle("/", router)
-
-	// Environment Logs
-	log.Printf(`🚨  Server started at: localhost:%s`, port)
-	log.Printf(`🛰  API: localhost:%s`, port)
-	log.Printf(`🍃  Enviroment: %s`, env)
-	log.Printf(`🏷️  Version: %s`, verision)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
-}
-
+/*
+* Function Name: handler
+* Description: handles the base request `/`
+*
+* Params: (w http.ResponseWriter, r *http.Request)
+* Return: nil
+ */
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.RequestURI)
 	fmt.Fprint(w, apiHome)
 }
 
+/*
+* Function Name: handleTweets
+* Description: handles request from the `/tweets/{username}`
+* endpoint and responds with 10 tweets
+*
+* Params: (w http.ResponseWriter, r *http.Request)
+* Return: nil
+ */
 func handleTweets(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tweets, err := getTweets(string(vars["username"]), 10)
@@ -79,6 +86,14 @@ func handleTweets(w http.ResponseWriter, r *http.Request) {
 	w.Write(twts)
 }
 
+/*
+* Function Name: handleTopTweets
+* Description: handles request from the `/tweets/{username}/top-monthly`
+* endpoint and responds with their top 10 most liked tweets
+*
+* Params: (w http.ResponseWriter, r *http.Request)
+* Return: nil
+ */
 func handleTopTweets(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tweets, err := getTweets(string(vars["username"]), 200)
@@ -97,6 +112,13 @@ func handleTopTweets(w http.ResponseWriter, r *http.Request) {
 	w.Write(twts)
 }
 
+/*
+* Function Name: getTweets
+* Description: Retrieves a list of users tweets
+*
+* Params: (username string, tweetCount int)
+* Return: (*twitter.Search, error)
+ */
 func getTweets(username string, tweetCount int) (*twitter.Search, error) {
 	tweets, _, err := twitterAPI().Search.Tweets(&twitter.SearchTweetParams{
 		Query: username,
