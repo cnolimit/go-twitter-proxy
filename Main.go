@@ -48,7 +48,7 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", handler)
 	router.HandleFunc("/tweets/{username}", handleTweets)
-	router.HandleFunc("/tweets/top-monthly/{username}", handleTopTweets)
+	router.HandleFunc("/tweets/{username}/top-monthly", handleTopTweets)
 
 	http.Handle("/", router)
 
@@ -89,6 +89,8 @@ func handleTopTweets(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sort.Slice(tweets.Statuses, func(i, j int) bool { return tweets.Statuses[i].FavoriteCount > tweets.Statuses[j].FavoriteCount })
+
+	tweets.Statuses = tweets.Statuses[0:10]
 
 	twts, _ := json.Marshal(tweets)
 
