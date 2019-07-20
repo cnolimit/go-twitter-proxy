@@ -5,13 +5,13 @@
 This project was created to help me better understand `Go` language.
 It is a simple server proxying the twitter API with 2 endpoints;
 
-1. Get tweets by screen_name
+1. Get tweets by username
 
    ```sh
    GET http://localhost:3000/tweets/{username}
    ```
 
-2. Get top 10 tweets by screen_name
+2. Get top 10 tweets by username
 
    ```sh
    GET http://localhost:3000/tweets/{username}/top-monthly
