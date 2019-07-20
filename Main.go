@@ -15,7 +15,7 @@ import (
 func main() {
 	const port = "3000"
 	const env = "development"
-	const verision = "1.0.0"
+	const version = "1.0.0"
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", handler)
@@ -26,7 +26,7 @@ func main() {
 	log.Printf(`🚨  Server started at: localhost:%s`, port)
 	log.Printf(`🛰  API: localhost:%s`, port)
 	log.Printf(`🍃  Enviroment: %s`, env)
-	log.Printf(`🏷️  Version: %s`, verision)
+	log.Printf(`🏷️  Version: %s`, version)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
